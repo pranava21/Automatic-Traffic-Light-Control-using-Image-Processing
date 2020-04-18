@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 
-def camera(frame1,frame2):
+def getTrafficDensityFromImages(frame1,frame2):
 	hsvImage1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2HSV)
 	hsvImage2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2HSV)
-				
+	cv2.imshow("Frame1",frame1)			
 	lightGray = np.uint8([[[0,50,0]]])
 	darkGray = np.uint8([[[179,50,255]]])
 

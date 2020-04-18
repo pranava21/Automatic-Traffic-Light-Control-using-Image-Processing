@@ -3,10 +3,8 @@ import RPi.GPIO as GPIO
 import cam
 import DB
 import serial
-try:
-    ser = serial.Serial('/dev/ttyACM0',9600)
-except serial.serialutil.SerialException:
-    ser = serial.Serial('/dev/ttyACM1',9600)
+
+ser = serial.Serial('/dev/ttyACM1',9600)
 
 road1 = traffic.Road('1',23,17,27)
 road2 = traffic.Road('2',22,5,6)
@@ -24,7 +22,21 @@ def getRoad(roadID):
         return road4
 
 def checkIfAmbulance():
-    return int(ser.readline().decode())
+    a = int(ser.readline().decode())
+    print(a)
+    return(a)
+
+def checkIfLightIsOn(light):
+        if light == "red":
+            while not road.isRedOn():
+                if road.isRedOn():
+                    break
+        elif light == "green":
+            while  not road.isGreenOn():
+                if road.isGreenOn():
+                    break
+            
+            
     
 try:
     while 1:
@@ -38,13 +50,9 @@ try:
                     continue
                 else:
                     road.greenLight()
-                    while  not road.isGreenOn():
-                        if road.isGreenOn():
-                            break
+                    checkIfLightIsOn("green")
             road.redLight()
-            while  not road.isRedOn():
-                if road.isRedOn():
-                    break
+            checkIfLightIsOn("red")
                     
             
         else:
@@ -59,27 +67,19 @@ try:
                     elif checkIfAmbulance() != 0:
                         print("Checking for A in usual loop")
                         road.redLight()
-                        
-                        while  not road.isRedOn():
-                            print("A detected in usual loop")
-                            if road.isRedOn():
-                                break
+                        checkIfLightIsOn("red")
                         break
                     
                     else:
                         continue
                 else:
                     road.greenLight()
-                    while  not road.isGreenOn():
-                        if road.isGreenOn():
-                            break
+                    checkIfLightIsOn("green")
             if road.isRedOn():
                 continue
             else:
                 road.redLight()
-                while  not road.isRedOn():
-                    if road.isRedOn():
-                        break
+                checkIfLightIsOn("red")
 except KeyboardInterrupt:
     GPIO.cleanup()
         
