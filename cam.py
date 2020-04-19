@@ -1,37 +1,47 @@
 import cv2
 import numpy as np
 
-def getTrafficDensityFromImages(frame1,frame2):
-	hsvImage1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2HSV)
-	hsvImage2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2HSV)
-	cv2.imshow("Frame1",frame1)			
-	lightGray = np.uint8([[[0,50,0]]])
-	darkGray = np.uint8([[[179,50,255]]])
+def getTrafficDensityFromImages(image):
+    cropped = image[0:768, 615:980]
+    
+    #gamma correction
+    image = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
+    dst = cv2.fastNlMeansDenoisingColored(image,None,10,10,7,15)
+    img = dst/255
+    img = cv2.pow(img, 2) 
+    new_image = np.uint8(img*255)
 
-	mask1 = cv2.inRange(hsvImage1, lightGray, darkGray)
-	mask2 = cv2.inRange(hsvImage2, lightGray, darkGray)
+    #Mask 1
+    kernel = np.ones((5, 5), np.uint8)
+    dilation_image = cv2.dilate(new_image, kernel, iterations=2)
+    hsv_im = cv2.cvtColor(dilation_image, cv2.COLOR_RGB2HSV)
+    
+    light_gray = np.uint8([[[0, 3, 50]]])
+    dark_gray = np.uint8([[[179, 50, 255]]])
+    
+    mask = cv2.inRange(hsv_im, light_gray, dark_gray)
+    result = cv2.bitwise_and(image, image, mask=mask)
 
-	result1 = cv2.bitwise_and(frame1, frame1, mask = mask1)
-	result2 = cv2.bitwise_and(frame2, frame2, mask = mask2)
+    #mask 2
+    hsv_im2 = cv2.cvtColor(dilation_image, cv2.COLOR_BGR2HSV)
+    
+    light_green = np.uint8([[[80, 40, 30]]])
+    dark_green = np.uint8([[[138, 100, 78]]])
+    
+    mask = cv2.inRange(hsv_im2, light_green, dark_green)
+    r = cv2.bitwise_not(dilation_image, dilation_image,  mask=mask)
 
-	grayImage1 = cv2.cvtColor(result1, cv2.COLOR_BGR2GRAY)
-	grayImage2 = cv2.cvtColor(result2, cv2.COLOR_BGR2GRAY)
+    #image subtraction
+    op = cv2.subtract(result, r)
+  
+    #edge detection and finding area
+    gray = cv2.cvtColor(op, cv2.COLOR_BGR2GRAY)
+    edged = cv2.Canny(gray, 30, 200) #(img, lower, upper) threshold values
+    
+    contours, hierarchy = cv2.findContours(edged,  cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    areas = []
+    for c in contours:
+        area = cv2.contourArea(c)
+        areas = np.append(areas, area)
 
-	edgedImage1 = cv2.Canny(grayImage1, 30, 200)
-	edgedImage2 = cv2.Canny(grayImage2, 30, 200)
-
-	contours1, hierarchy1 = cv2.findContours(edgedImage1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-	contours2, hierarchy2 = cv2.findContours(edgedImage2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-	cv2.drawContours(result1, contours1, -1, (0,255,0), 2)
-	cv2.drawContours(result2, contours2, -1, (0,255,0), 2)
-
-	#cv2.imshow('Contours1',result1)
-	#cv2.imshow('Contours2',result2)
-
-	trafficOnRoad1 = len(contours1)
-	trafficOnRoad2 = len(contours2)
-	
-	trafficOnRoads = [trafficOnRoad1, trafficOnRoad2]
-	
-	return trafficOnRoads
+    return int(np.sum(areas))
