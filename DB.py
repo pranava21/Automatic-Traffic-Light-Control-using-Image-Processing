@@ -28,6 +28,27 @@ def checkMax(ID):
     return getResult(myCursor)
 
 
+def getSecondHighest():
+    ROAD = getDatabaseConnection()
+    myCursor = ROAD.cursor()
+    myCursor.callproc('getSecondHighestTrafficDensity')
+    return getResult(myCursor)
+
+
+def getLeast():
+    ROAD = getDatabaseConnection()
+    myCursor = ROAD.cursor()
+    myCursor.callproc('getLeastTrafficDensity')
+    return getResult(myCursor)
+
+
+def getThirdHighest():
+    ROAD = getDatabaseConnection()
+    myCursor = ROAD.cursor()
+    myCursor.callproc('getThirdHighestTrafficDensity')
+    return getResult(myCursor)
+
+
 def getDatabaseConnection():
     mydb = mysql.connector.connect(
         host="192.168.1.15",
