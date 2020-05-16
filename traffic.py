@@ -9,6 +9,7 @@ import socket
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
+
 class Road:
     def __init__(self, name, red, yellow, green):
         self.name = name
@@ -19,9 +20,9 @@ class Road:
         GPIO.setup(red, GPIO.OUT)
         GPIO.setup(yellow, GPIO.OUT)
         GPIO.setup(green, GPIO.OUT)
-        
+
         GPIO.output(red, True)
-        GPIO.output(yellow,False)
+        GPIO.output(yellow, False)
         GPIO.output(green, False)
 
     def redOn(self):
@@ -41,16 +42,15 @@ class Road:
             return True
         else:
             return False
-            
+
     def isRedOn(self):
         if GPIO.input(self.red) == 1:
             return True
         else:
             return False
-                
-    
+
     def redLight(self):
-        ## Considering Green is On, and Road will be red lit.
+        # Considering Green is On, and Road will be red lit.
         GPIO.output(self.green, False)
         time.sleep(1)
         GPIO.output(self.yellow, True)
@@ -60,7 +60,7 @@ class Road:
         GPIO.output(self.red, True)
 
     def greenLight(self):
-        ## Considering Red is On, and Road will be Green lit.
+        # Considering Red is On, and Road will be Green lit.
         GPIO.output(self.red, False)
         time.sleep(1)
         GPIO.output(self.yellow, True)
@@ -68,4 +68,3 @@ class Road:
         GPIO.output(self.yellow, False)
         time.sleep(1)
         GPIO.output(self.green, True)
-
