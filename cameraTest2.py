@@ -23,7 +23,9 @@ while 1:
     ret1, frame1 = trafficCam1.read()
     ret2, frame2 = trafficCam2.read()
         
-    sortedTraffic12 = cam.getTrafficDensityFromImages(frame1, frame2)
+    Traffic1 = cam.getTrafficDensityFromImages(frame1)
+    Traffic2 = cam.getTrafficDensityFromImages(frame2)
+    sortedTraffic12 = [Traffic1, Traffic2]
     
     sortedTraffic34, address = sock.recvfrom(2048)
     
