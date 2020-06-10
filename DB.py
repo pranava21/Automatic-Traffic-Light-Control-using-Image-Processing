@@ -49,13 +49,40 @@ def getThirdHighest():
     return getResult(myCursor)
 
 
+def getTrafficDensityinOrder(i):
+    ROAD = getDatabaseConnection()
+    myCursor = ROAD.cursor()
+    myCursor.callproc('getTrafficDensityinOrder', [i, ])
+    return getResult(myCursor)
+
+
+def getI():
+    ROAD = getDatabaseConnection()
+    myCursor = ROAD.cursor()
+    myCursor.callproc('getI')
+    return getResult(myCursor)
+
+
+def setI(i):
+    ROAD = getDatabaseConnection()
+    myCursor = ROAD.cursor()
+    myCursor.callproc('setI', [i, ])
+    ROAD.commit()
+
+
+def incrementI():
+    ROAD = getDatabaseConnection()
+    myCursor = ROAD.cursor()
+    myCursor.callproc('incrementI')
+    ROAD.commit()
+
+
 def getDatabaseConnection():
     mydb = mysql.connector.connect(
         host="192.168.1.15",
         user="root",
-        passwd="root",
-        database="trafficdata",
-        auth_plugin='mysql_native_password'
+        passwd="password",
+        database="trafficdata"
     )
     return mydb
 

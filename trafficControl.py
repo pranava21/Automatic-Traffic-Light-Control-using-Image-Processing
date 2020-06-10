@@ -24,7 +24,6 @@ def checkIfAmbulance(ser):
     return int(ser.readline().decode())
 
 
-
 def checkIfLightIsOn(light, road):
     if light == "red":
         while not road.isRedOn():
@@ -54,7 +53,7 @@ def controlAmbulance(ser):
     checkIfLightIsOn("red", road)
 
 
-def controlTraffic(ser,i):
+def controlTraffic(ser, i):
     print("In Control Loop")
     timer = Timer()
     roadID = DB.getMax()
@@ -73,12 +72,21 @@ def controlTraffic(ser,i):
                 break
 
             elif elapsedTime >= 10.0:
-                road.redLight()
-                timer.stopTimer()
-                time.sleep(2)
-                print("Road with" + str(i) + " Highest Traffic Density")
-                ifTimerRunsOut(ser, i)
-                break
+                id = DB.getTrafficDensityinOrder(DB.getI())
+                if DB.checkMax(id) > 50:
+                    road.redLight()
+                    timer.stopTimer()
+                    time.sleep(2)
+                    print("Road with " + str(DB.getI()) + " Highest Traffic Density")
+                    ifTimerRunsOut(ser, DB.getI())
+                    break
+                else:
+                    print("No traffic " + str(DB.getI()))
+                    timer.stopTimer()
+                    timer.startTimer()
+                    DB.incrementI()
+                    if DB.getI() > 4:
+                        DB.setI(2)
 
             else:
                 continue
@@ -93,7 +101,7 @@ def controlTraffic(ser,i):
         checkIfLightIsOn("red", road)
 
 
-def ifTimerRunsOut(ser,i):
+def ifTimerRunsOut(ser, i):
     timer = Timer()
     if i == 2:
         roadID = DB.getSecondHighest()
